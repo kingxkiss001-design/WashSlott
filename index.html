@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123f3d">
+  <meta name="description" content="Check sample laundry availability and try the WashSlot booking demonstration.">
+  <title>WashSlot — Shared laundry, made simpler</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #203331;
+      --muted: #657572;
+      --teal: #123f3d;
+      --teal-hover: #0d3331;
+      --mint: #e6f4ee;
+      --mint-strong: #cde9dc;
+      --page: #f3f7f4;
+      --line: #dce6e1;
+      --white: #fff;
+      --green: #23734e;
+      --green-bg: #e8f5ed;
+      --grey: #66716e;
+      --grey-bg: #eef1ef;
+      --warning: #8b5a16;
+      --warning-bg: #fff5df;
+      --danger: #a23c36;
+      --shadow: 0 8px 24px rgb(22 57 47 / 5%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--page);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    button, input { font: inherit; }
+    button { color: inherit; }
+
+    .app-header {
+      background: var(--white);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .header-inner, main {
+      width: min(1120px, calc(100% - 40px));
+      margin-inline: auto;
+    }
+
+    .header-inner {
+      min-height: 82px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: var(--teal);
+      color: white;
+      font-size: 23px;
+      font-weight: 750;
+      letter-spacing: -1px;
+    }
+
+    .brand-name { display: block; font-size: 17px; font-weight: 750; line-height: 1.25; }
+    .brand-tagline { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; }
+
+    .housing-label {
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #435550;
+      font-size: 12px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    main { padding-block: 35px 48px; }
+
+    .welcome {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 680px;
+      margin: 0;
+      color: var(--teal);
+      font-size: clamp(29px, 4vw, 40px);
+      letter-spacing: -.045em;
+      line-height: 1.12;
+    }
+
+    .welcome-copy {
+      max-width: 570px;
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .today {
+      flex: 0 0 auto;
+      padding: 10px 13px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--white);
+      color: #485955;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      align-items: start;
+      gap: 22px;
+    }
+
+    .left-column { display: grid; gap: 20px; min-width: 0; }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    .section-card { padding: 21px; }
+    .section-heading {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 17px;
+    }
+
+    h2 { margin: 0; color: var(--teal); font-size: 17px; letter-spacing: -.02em; }
+    .section-note { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+
+    .machine-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 11px;
+    }
+
+    .machine-option { position: relative; }
+    .machine-radio {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
+    .machine-label {
+      display: flex;
+      min-height: 90px;
+      align-items: center;
+      gap: 11px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--white);
+      cursor: pointer;
+      transition: border-color .15s ease, background-color .15s ease;
+    }
+
+    .machine-label:hover { border-color: #9dbbb0; }
+    .machine-radio:checked + .machine-label {
+      border-color: var(--teal);
+      background: #f0f8f4;
+      box-shadow: inset 0 0 0 1px var(--teal);
+    }
+
+    .machine-radio:focus-visible + .machine-label,
+    button:focus-visible, input:focus-visible, summary:focus-visible {
+      outline: 3px solid #70b998;
+      outline-offset: 3px;
+    }
+
+    .radio-dot {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 18px;
+      display: grid;
+      place-items: center;
+      border: 1.5px solid #aebcb6;
+      border-radius: 50%;
+      background: white;
+    }
+
+    .machine-radio:checked + .machine-label .radio-dot { border-color: var(--teal); }
+    .machine-radio:checked + .machine-label .radio-dot::after {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--teal);
+      content: "";
+    }
+
+    .machine-copy { min-width: 0; }
+    .machine-name { display: block; font-size: 13px; font-weight: 700; }
+    .machine-type { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
+
+    .schedule-card { padding: 21px; }
+    .date-control { display: grid; gap: 5px; }
+    .date-control label { color: var(--muted); font-size: 11px; font-weight: 650; }
+    input[type="date"] {
+      min-height: 37px;
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      color: var(--ink);
+      font-size: 12px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 13px;
+      margin: -2px 0 15px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .legend-mark { width: 9px; height: 9px; border-radius: 3px; background: var(--green); }
+    .legend-mark.booked { background: #9aa5a0; }
+    .legend-mark.next { background: #dfab53; }
+
+    .slot-list { display: grid; gap: 9px; }
+    .slot {
+      width: 100%;
+      min-height: 57px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 13px;
+      border: 1px solid #cfe5d8;
+      border-radius: 11px;
+      background: var(--green-bg);
+      text-align: left;
+    }
+
+    button.slot { cursor: pointer; }
+    button.slot:hover:not(:disabled) { border-color: var(--green); background: #def0e5; }
+    .slot.booked, .slot.past {
+      border-color: #e1e6e3;
+      background: var(--grey-bg);
+      color: var(--grey);
+    }
+
+    .slot:disabled { cursor: not-allowed; opacity: 1; }
+    .slot.selected {
+      border-color: var(--teal);
+      box-shadow: inset 0 0 0 1px var(--teal);
+      background: #e6f2ec;
+    }
+
+    .slot.next { border-color: #d5aa64; box-shadow: inset 3px 0 #d5aa64; }
+    .slot-time { font-size: 13px; font-weight: 700; }
+    .slot-detail { display: block; margin-top: 2px; color: #64736d; font-size: 10px; font-weight: 500; }
+    .status {
+      flex: 0 0 auto;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #d7eddf;
+      color: #236744;
+      font-size: 10px;
+      font-weight: 750;
+    }
+
+    .booked .status, .past .status { background: #e0e5e2; color: #5e6965; }
+    .next .status { background: var(--warning-bg); color: var(--warning); }
+
+    .empty-state {
+      padding: 17px;
+      border: 1px dashed #cbd9d2;
+      border-radius: 11px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .earlier { margin-top: 15px; border-top: 1px solid #edf1ee; padding-top: 12px; }
+    .earlier summary { width: fit-content; color: #52635d; cursor: pointer; font-size: 12px; font-weight: 650; }
+    .earlier .slot-list { margin-top: 12px; }
+
+    .booking-card { position: sticky; top: 18px; overflow: hidden; }
+    .booking-header { padding: 21px 21px 17px; border-bottom: 1px solid #e8eeea; }
+    .booking-header p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .demo-notice {
+      margin: 16px 21px 0;
+      padding: 10px 11px;
+      border: 1px solid #f0dfb8;
+      border-radius: 9px;
+      background: var(--warning-bg);
+      color: #72531d;
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .booking-form { display: grid; gap: 14px; padding: 18px 21px 21px; }
+    .selection-summary {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid #dfeae4;
+      border-radius: 10px;
+      background: #f7faf8;
+    }
+
+    .summary-row { display: flex; justify-content: space-between; gap: 10px; font-size: 11px; }
+    .summary-row span { color: var(--muted); }
+    .summary-row strong { text-align: right; font-weight: 700; }
+    .field { display: grid; gap: 6px; }
+    .field label { color: #40524c; font-size: 12px; font-weight: 650; }
+    .field input {
+      width: 100%;
+      min-height: 42px;
+      padding: 9px 11px;
+      border: 1px solid #cfdad4;
+      border-radius: 9px;
+      background: var(--white);
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .field input::placeholder { color: #96a39d; }
+    .primary-button {
+      min-height: 45px;
+      width: 100%;
+      padding: 10px 14px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--teal);
+      color: white;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .primary-button:hover:not(:disabled) { background: var(--teal-hover); }
+    .primary-button:disabled { cursor: wait; opacity: .76; }
+    .form-message { margin: 0; font-size: 12px; }
+    .form-message:empty { display: none; }
+    .form-message.error { color: var(--danger); }
+    .form-message.processing { color: var(--muted); }
+    .form-message.success {
+      padding: 12px;
+      border: 1px solid #c7e4d1;
+      border-radius: 10px;
+      background: var(--green-bg);
+      color: #215d3e;
+      line-height: 1.5;
+    }
+
+    footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--line);
+      color: #687772;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    @media (max-width: 820px) {
+      .dashboard { grid-template-columns: minmax(0, 1fr) 300px; gap: 15px; }
+      .section-card, .schedule-card { padding: 17px; }
+      .machine-list { gap: 8px; }
+      .machine-label { gap: 8px; padding: 10px 8px; }
+      .booking-header { padding-inline: 17px; }
+      .booking-form { padding-inline: 17px; }
+      .demo-notice { margin-inline: 17px; }
+    }
+
+    @media (max-width: 680px) {
+      .header-inner, main { width: min(100% - 28px, 540px); }
+      .header-inner { min-height: 72px; }
+      .brand-mark { width: 39px; height: 39px; }
+      main { padding-top: 27px; }
+      .welcome { display: block; margin-bottom: 22px; }
+      .today { display: inline-block; margin-top: 15px; }
+      .dashboard { grid-template-columns: 1fr; gap: 16px; }
+      .booking-card { position: static; }
+      .machine-list { gap: 8px; }
+      .machine-label { min-height: 89px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 7px; padding: 10px; }
+      .machine-copy { padding-left: 1px; }
+      .machine-radio:checked + .machine-label .radio-dot { position: absolute; top: 10px; right: 10px; }
+      .machine-radio:not(:checked) + .machine-label .radio-dot { position: absolute; top: 10px; right: 10px; }
+    }
+
+    @media (max-width: 390px) {
+      .header-inner, main { width: calc(100% - 22px); }
+      .housing-label { padding: 7px 9px; font-size: 10px; }
+      .machine-list { grid-template-columns: 1fr; }
+      .machine-label { min-height: 62px; flex-direction: row; align-items: center; padding: 10px 12px; }
+      .machine-radio:checked + .machine-label .radio-dot,
+      .machine-radio:not(:checked) + .machine-label .radio-dot { position: static; }
+      .section-heading { align-items: center; }
+      .date-control input { max-width: 140px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <a class="brand" href="#" aria-label="WashSlot home">
+        <span class="brand-mark" aria-hidden="true">W</span>
+        <span>
+          <span class="brand-name">WashSlot</span>
+          <span class="brand-tagline">Shared laundry, made simpler.</span>
+        </span>
+      </a>
+      <span class="housing-label">Student Housing</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="welcome" aria-labelledby="welcome-title">
+      <div>
+        <p class="eyebrow">Laundry room · Demo schedule</p>
+        <h1 id="welcome-title">Get laundry done. Skip the guesswork.</h1>
+        <p class="welcome-copy">Check the sample availability before heading downstairs, choose a time that works, and try the booking flow.</p>
+      </div>
+      <time class="today" id="today-date"></time>
+    </section>
+
+    <div class="dashboard">
+      <div class="left-column">
+        <section class="card section-card" aria-labelledby="machine-heading">
+          <div class="section-heading">
+            <div>
+              <h2 id="machine-heading">Choose a machine</h2>
+              <p class="section-note">Select one to see its schedule.</p>
+            </div>
+          </div>
+          <div class="machine-list" id="machine-list" role="radiogroup" aria-labelledby="machine-heading"></div>
+        </section>
+
+        <section class="card schedule-card" aria-labelledby="schedule-heading">
+          <div class="section-heading">
+            <div>
+              <h2 id="schedule-heading" tabindex="-1">Upcoming availability</h2>
+              <p class="section-note" id="schedule-subtitle">Choose an available time slot.</p>
+            </div>
+            <div class="date-control">
+              <label for="booking-date">Date</label>
+              <input id="booking-date" type="date" required>
+            </div>
+          </div>
+          <div class="legend" aria-label="Schedule status legend">
+            <span class="legend-item"><span class="legend-mark"></span>Available</span>
+            <span class="legend-item"><span class="legend-mark booked"></span>Booked</span>
+            <span class="legend-item"><span class="legend-mark next"></span>Next available</span>
+          </div>
+          <div class="slot-list" id="upcoming-slots" aria-live="polite"></div>
+          <details class="earlier" id="earlier-section">
+            <summary id="earlier-summary">Show earlier slots</summary>
+            <div class="slot-list" id="earlier-slots"></div>
+          </details>
+        </section>
+      </div>
+
+      <aside class="card booking-card" aria-labelledby="booking-heading">
+        <div class="booking-header">
+          <h2 id="booking-heading">Booking details</h2>
+          <p>Your selection stays visible while you fill this in.</p>
+        </div>
+        <p class="demo-notice"><strong>Demonstration only.</strong> This prototype uses sample data. No shared reservation is created or saved.</p>
+        <form class="booking-form" id="booking-form" novalidate>
+          <div class="selection-summary" aria-label="Selected booking">
+            <div class="summary-row"><span>Machine</span><strong id="summary-machine">Washer 1</strong></div>
+            <div class="summary-row"><span>Date</span><strong id="summary-date">Select a date</strong></div>
+            <div class="summary-row"><span>Time</span><strong id="summary-time">Select an available slot</strong></div>
+          </div>
+          <div class="field">
+            <label for="resident-name">Your name <span aria-hidden="true">*</span></label>
+            <input id="resident-name" name="name" type="text" autocomplete="name" maxlength="80" placeholder="e.g. Alex Morgan" required>
+          </div>
+          <div class="field">
+            <label for="room-number">Room or apartment number <span aria-hidden="true">*</span></label>
+            <input id="room-number" name="room" type="text" autocomplete="off" maxlength="30" placeholder="e.g. B-204" required>
+          </div>
+          <p class="form-message" id="form-message" role="status" aria-live="polite"></p>
+          <button class="primary-button" id="confirm-button" type="submit">Confirm booking</button>
+        </form>
+      </aside>
+    </div>
+  </main>
+
+  <footer>WashSlot demo · Availability is illustrative and not shared with other residents.</footer>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const machines = [
+        { id: "washer-1", name: "Washer 1", type: "Standard washer", slots: [
+          { start: "14:00", end: "15:00", booked: false },
+          { start: "15:00", end: "16:00", booked: true },
+          { start: "16:00", end: "17:00", booked: false },
+          { start: "18:00", end: "19:00", booked: false }
+        ] },
+        { id: "washer-2", name: "Washer 2", type: "Standard washer", slots: [
+          { start: "13:00", end: "14:00", booked: true },
+          { start: "14:00", end: "15:00", booked: true },
+          { start: "17:00", end: "18:00", booked: false },
+          { start: "19:00", end: "20:00", booked: false }
+        ] },
+        { id: "dryer-1", name: "Dryer 1", type: "Tumble dryer", slots: [
+          { start: "13:00", end: "14:00", booked: false },
+          { start: "14:00", end: "15:00", booked: false },
+          { start: "15:00", end: "16:00", booked: true },
+          { start: "17:00", end: "18:00", booked: false }
+        ] }
+      ];
+
+      const machineList = document.getElementById("machine-list");
+      const dateInput = document.getElementById("booking-date");
+      const upcomingList = document.getElementById("upcoming-slots");
+      const earlierList = document.getElementById("earlier-slots");
+      const earlierSection = document.getElementById("earlier-section");
+      const earlierSummary = document.getElementById("earlier-summary");
+      const form = document.getElementById("booking-form");
+      const nameInput = document.getElementById("resident-name");
+      const roomInput = document.getElementById("room-number");
+      const submitButton = document.getElementById("confirm-button");
+      const message = document.getElementById("form-message");
+      let selectedMachineId = machines[0].id;
+      let selectedSlot = null;
+      let processing = false;
+
+      const localDateKey = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+
+      const dateForDisplay = (value) => {
+        if (!value) return "Select a date";
+        const [year, month, day] = value.split("-").map(Number);
+        return new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" })
+          .format(new Date(year, month - 1, day));
+      };
+
+      document.getElementById("today-date").textContent = new Intl.DateTimeFormat(undefined, {
+        weekday: "long", year: "numeric", month: "long", day: "numeric"
+      }).format(new Date());
+      dateInput.value = localDateKey(new Date());
+      dateInput.min = dateInput.value;
+
+      function currentMachine() {
+        return machines.find((machine) => machine.id === selectedMachineId);
+      }
+
+      function updateSummary() {
+        document.getElementById("summary-machine").textContent = currentMachine().name;
+        document.getElementById("summary-date").textContent = dateForDisplay(dateInput.value);
+        document.getElementById("summary-time").textContent = selectedSlot
+          ? `${selectedSlot.start}–${selectedSlot.end}`
+          : "Select an available slot";
+      }
+
+      function renderMachines() {
+        machineList.replaceChildren();
+        machines.forEach((machine) => {
+          const wrapper = document.createElement("div");
+          wrapper.className = "machine-option";
+          const radio = document.createElement("input");
+          radio.className = "machine-radio";
+          radio.type = "radio";
+          radio.name = "machine";
+          radio.id = machine.id;
+          radio.value = machine.id;
+          radio.checked = machine.id === selectedMachineId;
+          radio.addEventListener("change", () => {
+            selectedMachineId = machine.id;
+            selectedSlot = null;
+            clearMessage();
+            renderSchedule();
+          });
+          const label = document.createElement("label");
+          label.className = "machine-label";
+          label.htmlFor = machine.id;
+          label.innerHTML = '<span class="radio-dot" aria-hidden="true"></span><span class="machine-copy"><span class="machine-name"></span><span class="machine-type"></span></span>';
+          label.querySelector(".machine-name").textContent = machine.name;
+          label.querySelector(".machine-type").textContent = machine.type;
+          wrapper.append(radio, label);
+          machineList.append(wrapper);
+        });
+      }
+
+      function makeSlot(slot, state, isNext) {
+        const element = document.createElement(state === "available" ? "button" : "div");
+        element.className = `slot ${state}${isNext ? " next" : ""}`;
+        if (state === "available") {
+          element.type = "button";
+          element.setAttribute("aria-pressed", String(selectedSlot?.start === slot.start));
+          if (selectedSlot?.start === slot.start) element.classList.add("selected");
+          element.addEventListener("click", () => {
+            selectedSlot = slot;
+            clearMessage();
+            renderSchedule();
+          });
+        }
+        const copy = document.createElement("span");
+        copy.className = "slot-copy";
+        const time = document.createElement("span");
+        time.className = "slot-time";
+        time.textContent = `${slot.start}–${slot.end}`;
+        const detail = document.createElement("span");
+        detail.className = "slot-detail";
+        detail.textContent = state === "past" ? "No longer available" : (isNext ? "First available time" : "");
+        copy.append(time, detail);
+        const status = document.createElement("span");
+        status.className = "status";
+        status.textContent = state === "available" ? (isNext ? "Next available" : "Available") : (state === "booked" ? "Booked" : "Past");
+        element.append(copy, status);
+        if (state === "booked") element.setAttribute("aria-label", `${slot.start} to ${slot.end}, booked`);
+        if (state === "past") element.setAttribute("aria-label", `${slot.start} to ${slot.end}, past`);
+        return element;
+      }
+
+      function renderSchedule() {
+        const machine = currentMachine();
+        const chosenDate = dateInput.value;
+        const today = localDateKey(new Date());
+        const isToday = chosenDate === today;
+        const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+        const slots = machine.slots.map((slot) => {
+          const [hour, minute] = slot.end.split(":").map(Number);
+          const expired = isToday && hour * 60 + minute <= nowMinutes;
+          return { ...slot, expired };
+        });
+        const upcoming = slots.filter((slot) => !slot.expired);
+        const earlier = slots.filter((slot) => slot.expired);
+        const nextIndex = upcoming.findIndex((slot) => !slot.booked);
+        if (selectedSlot && !upcoming.some((slot) => slot.start === selectedSlot.start && !slot.booked)) {
+          selectedSlot = null;
+        }
+
+        document.getElementById("schedule-heading").textContent = `${machine.name} schedule`;
+        document.getElementById("schedule-subtitle").textContent = `Availability for ${dateForDisplay(chosenDate)}.`;
+        upcomingList.replaceChildren();
+        earlierList.replaceChildren();
+        upcoming.forEach((slot, index) => {
+          upcomingList.append(makeSlot(slot, slot.booked ? "booked" : "available", index === nextIndex));
+        });
+        earlier.forEach((slot) => earlierList.append(makeSlot(slot, "past", false)));
+        earlierSection.hidden = earlier.length === 0;
+        earlierSummary.textContent = `Show earlier slots (${earlier.length})`;
+
+        if (upcoming.length === 0) {
+          const empty = document.createElement("p");
+          empty.className = "empty-state";
+          empty.textContent = isToday
+            ? "No more sample slots today. Choose a future date to see the sample schedule."
+            : "No sample slots are listed for this date.";
+          upcomingList.append(empty);
+        } else if (nextIndex === -1) {
+          const empty = document.createElement("p");
+          empty.className = "empty-state";
+          empty.textContent = "All remaining sample slots are booked.";
+          upcomingList.append(empty);
+        }
+        updateSummary();
+      }
+
+      function clearMessage() {
+        message.textContent = "";
+        message.className = "form-message";
+      }
+
+      dateInput.addEventListener("change", () => {
+        selectedSlot = null;
+        clearMessage();
+        renderSchedule();
+      });
+
+      form.addEventListener("input", (event) => {
+        if (event.target.matches("input")) clearMessage();
+      });
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (processing) return;
+        clearMessage();
+        if (!dateInput.value || !dateInput.validity.valid) {
+          message.textContent = "Choose a valid date today or later.";
+          message.classList.add("error");
+          dateInput.focus();
+          return;
+        }
+        const requiredInputs = [nameInput, roomInput];
+        const invalidInput = requiredInputs.find((input) => !input.value.trim());
+        if (invalidInput) {
+          message.textContent = "Enter your name and room or apartment number to continue.";
+          message.classList.add("error");
+          invalidInput.focus();
+          return;
+        }
+        if (!selectedSlot) {
+          message.textContent = "Choose an available time slot before confirming.";
+          message.classList.add("error");
+          document.getElementById("schedule-heading").focus();
+          return;
+        }
+
+        const booking = {
+          machine: currentMachine().name,
+          date: dateForDisplay(dateInput.value),
+          time: `${selectedSlot.start}–${selectedSlot.end}`,
+          name: nameInput.value.trim(),
+          room: roomInput.value.trim()
+        };
+        processing = true;
+        submitButton.disabled = true;
+        submitButton.textContent = "Processing booking…";
+        message.textContent = "Processing your demonstration booking…";
+        message.className = "form-message processing";
+        window.setTimeout(() => {
+          message.replaceChildren();
+          const title = document.createElement("strong");
+          title.textContent = "Demo booking confirmed";
+          const details = document.createElement("span");
+          details.textContent = ` ${booking.machine}, ${booking.date}, ${booking.time} for ${booking.name} (Room ${booking.room}).`;
+          const disclaimer = document.createElement("span");
+          disclaimer.textContent = " This is only a local demonstration; no shared reservation was created.";
+          message.append(title, details, disclaimer);
+          message.className = "form-message success";
+          submitButton.disabled = false;
+          submitButton.textContent = "Confirm booking";
+          processing = false;
+        }, 850);
+      });
+
+      renderMachines();
+      renderSchedule();
+    })();
+  </script>
+</body>
+</html>
